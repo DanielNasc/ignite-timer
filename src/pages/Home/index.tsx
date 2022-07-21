@@ -60,6 +60,8 @@ export function Home() {
 
     setCycles((state) => [...state, newCycle])
     setActiveCycleId(newCycle.id)
+    // resetar quantidade de segundos passados
+    setSecondsPassed(0)
 
     resetForm() // reseta o formulario
   }
@@ -68,10 +70,17 @@ export function Home() {
   const activeCycle = cycles.find((cycle) => cycle.id === activeCycleId)
 
   useEffect(() => {
+    let interval: number
+
     if (activeCycle) {
-      setInterval(() => {
+      interval = setInterval(() => {
         setSecondsPassed(differenceInSeconds(new Date(), activeCycle.startDate))
       }, 1000)
+    }
+
+    // deletar o intervalo ativo
+    return () => {
+      clearInterval(interval)
     }
   }, [activeCycle])
 
@@ -88,6 +97,13 @@ export function Home() {
     .toString()
     .padStart(2, '0')
   const secondsLeft = (currentSeconds % 60).toString().padStart(2, '0')
+
+  // colocar o countdown no titulo da pagina se o ciclo ativo existir
+  useEffect(() => {
+    if (activeCycle) {
+      document.title = `${minutesLeft}:${secondsLeft}`
+    }
+  })
 
   const task = watch('task')
   const isSubmitDisabled = !task
